@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `Menu` ADD COLUMN `order` INTEGER NULL,
+    ADD COLUMN `url` VARCHAR(191) NULL;

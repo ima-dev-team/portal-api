@@ -1,0 +1,13 @@
+
+header{
+    border-bottom-style: solid !important;
+    border-image: linear-gradient(to left, #D7181E 1%, #FECD29 50%, #D7181E 100%) 0 0 100% 0/0 0 6px 0 stretch !important;
+}
+@media only screen and (min--moz-device-pixel-ratio: 2),
+    only screen and (-o-min-device-pixel-ratio: 2 / 1),
+    only screen and (-webkit-min-device-pixel-ratio: 2),
+    only screen and (min-device-pixel-ratio: 2) {
+    #logo_home h1 a {
+        background-size: 250px 77px !important;
+    }
+}

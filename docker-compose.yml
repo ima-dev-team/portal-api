@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  portal_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portal_api
+    restart: always
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    networks:
+      - portal_api
+
+networks: 
+  portal_api: 

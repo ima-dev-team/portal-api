@@ -1,0 +1,23 @@
+#google_translate_element, .goog-te-banner-frame {display: none !important;}
+body {position: static !important;top: 0 !important;}
+.img-link{padding:0 !important;opacity:0.5;-webkit-filter: grayscale(100%);filter: grayscale(100%);}
+.img-bandeira{width:20px;height:20px;border-radius: 100%;padding: 0px;margin:2px;border: 2px solid white; }
+.img-link:hover, .img-link-selected{opacity:1;-webkit-filter: grayscale(0);filter: grayscale(0);color: red}
+.container {min-width: 85% !important;}
+/* .links, #copy, .submenu{text-transform: capitalize;} */
+
+#google_translate_element{width:300px;float:right;text-align:right;display:block}
+#goog-gt-tt{display: none !important; top: 0px !important; }
+.goog-tooltip skiptranslate{display: none !important; top: 0px !important; }
+
+.goog-tooltip {display: none !important;}
+.goog-tooltip:hover {display: none !important;}
+.goog-text-highlight {background-color: transparent !important;border: none !important;box-shadow: none !important;}
+
+.activity-root { display: hide !important;}
+.status-message { display: hide !important;}
+.started-activity-container { display: hide !important;}
+.skiptranslate {display: none !important;}
+.goog-te-spinner-pos {display: none !important;}
+
+

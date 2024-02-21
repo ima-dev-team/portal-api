@@ -1,0 +1,382 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model abouts {
+  id          Int             @id @default(autoincrement())
+  description String          @db.LongText
+  section     abouts_section?
+  postoId     Int?
+  postos      postos?         @relation(fields: [postoId], references: [id])
+  created_at  DateTime        @default(now())
+  updated_at  DateTime        @default(now()) @updatedAt
+}
+
+model activity_log {
+  id          Int      @id @default(autoincrement())
+  user_id     Int      @db.UnsignedInt
+  description String   @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+
+  @@index([user_id], map: "activity_log_FK_1")
+}
+
+model assignments {
+  id          Int      @id @default(autoincrement())
+  description String   @db.Text
+  postoId     Int?
+  postos      postos?  @relation(fields: [postoId], references: [id])
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+}
+
+model configuracoes {
+  id         Int                   @id @default(autoincrement())
+  title      String?               @db.VarChar(110)
+  type       String?               @db.LongText
+  section    configuracoes_section
+  postoId    Int?
+  postos     postos?               @relation(fields: [postoId], references: [id])
+  created_at DateTime              @default(now())
+  updated_at DateTime              @default(now()) @updatedAt
+}
+
+model contactos {
+  id         Int      @id
+  name       String   @db.VarChar(100)
+  email      String   @db.VarChar(100)
+  phone      String   @db.VarChar(111)
+  postoId    Int?
+  postos     postos?  @relation(fields: [postoId], references: [id])
+  messagem   String   @db.LongText
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model entity_and_projects {
+  id             Int                         @id @default(autoincrement())
+  cover          String?                     @db.VarChar(255)
+  title          String?                     @db.VarChar(200)
+  postoId        Int?
+  postos         postos?                     @relation(fields: [postoId], references: [id])
+  description    String?                     @db.Text
+  link           String?                     @db.VarChar(200)
+  links          String?                     @db.VarChar(110)
+  section        entity_and_projects_section
+  sectores       String?                     @db.VarChar(110)
+  porcentual     String?                     @db.VarChar(100)
+  datarealizacao String?                     @db.VarChar(110)
+  edicao         String?                     @db.VarChar(110)
+  local          String?                     @db.VarChar(110)
+  condicaoAcesso String?                     @db.VarChar(110)
+  promotor       String?                     @db.VarChar(110)
+  organizador    String?                     @db.VarChar(110)
+  created_at     DateTime                    @default(now())
+  updated_at     DateTime                    @default(now()) @updatedAt
+}
+
+model galery {
+  id         Int            @id @default(autoincrement())
+  title      String         @db.LongText
+  cover      String         @db.VarChar(110)
+  postoId    Int?
+  postos     postos?        @relation(fields: [postoId], references: [id])
+  link       String?        @db.VarChar(110)
+  section    galery_section
+  created_at DateTime       @default(now())
+  updated_at DateTime       @default(now()) @updatedAt
+}
+
+model galery_item {
+  id         Int      @id @default(autoincrement())
+  id_album   Int?
+  cover      String?  @db.VarChar(210)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model municipio {
+  id           Int        @id @default(autoincrement())
+  provincia_id Int?
+  provincia    provincia? @relation(fields: [provincia_id], references: [id])
+  name         String     @db.VarChar(100)
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @default(now()) @updatedAt
+}
+
+model postos {
+  id                  Int                   @id @default(autoincrement())
+  title               String                @db.VarChar(255)
+  sigla               String                @db.VarChar(255)
+  domain              String?               @db.VarChar(255)
+  cover               String?               @db.VarChar(500)
+  type                postos_type?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @default(now()) @updatedAt
+  paginas             paginas[]
+  privacy_and_policy  privacy_and_policy[]
+  report_access       report_access[]
+  report_online       report_online[]
+  slides              slides[]
+  stats_farming       stats_farming[]
+  stories             stories[]
+  upload              upload[]
+  users               users[]
+  abouts              abouts[]
+  assignments         assignments[]
+  configuracoes       configuracoes[]
+  contactos           contactos[]
+  entity_and_projects entity_and_projects[]
+  galery              galery[]
+  profiles            profiles[]
+  menu               menu[]
+  posts               posts[]
+}
+
+model paginas {
+  id         Int            @id @default(autoincrement())
+  name       String
+  slug       String?
+  content    String?         @db.Text
+  css        String?        @db.Text
+  status     paginas_status @default(rascunho)
+  postoId    Int?
+  postos     postos?        @relation(fields: [postoId], references: [id])
+  created_at DateTime       @default(now())
+  updated_at DateTime       @default(now()) @updatedAt
+}
+
+model menu {
+  id         Int      @id @default(autoincrement())
+  title      String
+  url        String? // Opcional, nem todos os itens de menu podem ser links
+  parentId   Int? // Opcional, usado para estabelecer hierarquia (null para itens de nível superior)
+  postoId    Int?
+  order      Int? // Usado para controlar a ordem de exibição dos itens de menu
+  postos     postos?  @relation(fields: [postoId], references: [id])
+  parent     menu?    @relation("MenuItemToMenuItem", fields: [parentId], references: [id])
+  children   menu[]   @relation("MenuItemToMenuItem")
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model posts {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  author     Int?      @db.UnsignedInt
+  title      String?   @db.Text
+  uri        String?   @db.Text
+  content    String?   @db.Text
+  cover      String?   @db.Text
+  video      String?   @db.Text
+  views      Int?      @default(0)
+  postoId    Int?
+  postos     postos?   @relation(fields: [postoId], references: [id])
+  fonte      String?   @db.VarChar(110)
+  status     String    @default("draft") @db.VarChar(20)
+  destaque   Int?
+  post_at    DateTime? @default(now()) @db.Timestamp(0)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now()) @updatedAt
+  deleted_at DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model privacy_and_policy {
+  id          Int      @id @default(autoincrement())
+  description String   @db.Text
+  postoId     Int?
+  postos      postos?  @relation(fields: [postoId], references: [id])
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+}
+
+model profiles {
+  id            Int              @id @default(autoincrement())
+  name          String           @db.VarChar(100)
+  description   String           @db.Text
+  data_nomeacao String?          @db.VarChar(110)
+  photo         String           @db.VarChar(110)
+  postoId       Int?
+  postos        postos?          @relation(fields: [postoId], references: [id])
+  section       profiles_section
+  cargo         String?          @db.VarChar(110)
+  created_at    DateTime         @default(now())
+  updated_at    DateTime         @default(now()) @updatedAt
+}
+
+model profiles_descriptions {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(200)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model provincia {
+  id         Int         @id @default(autoincrement())
+  name       String      @db.VarChar(100)
+  created_at DateTime    @default(now())
+  updated_at DateTime    @default(now()) @updatedAt
+  municipio  municipio[]
+}
+
+model real_access {
+  id          Int      @id @default(autoincrement())
+  user_id     Int?
+  access_time DateTime @default(now()) @db.Timestamp(0)
+  user_agent  String?  @db.VarChar(255)
+  ip_address  String?  @db.VarChar(50)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+}
+
+model report_access {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  users      Int      @default(1)
+  views      Int      @default(1)
+  pages      Int      @default(1)
+  postoId    Int?
+  postos     postos?  @relation(fields: [postoId], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model report_online {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  user       Int?     @db.UnsignedInt
+  ip         String   @default("") @db.VarChar(50)
+  url        String   @default("") @db.VarChar(255)
+  agent      String   @default("") @db.VarChar(255)
+  pages      Int      @default(1)
+  postoId    Int?
+  postos     postos?  @relation(fields: [postoId], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model slides {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.Text
+  cover       String   @db.Text
+  link        String?  @db.Text
+  postoId     Int?
+  postos      postos?  @relation(fields: [postoId], references: [id])
+  description String?  @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+}
+
+model stats_farming {
+  id            Int      @id @default(autoincrement())
+  provincia     Int
+  municipio     Int
+  comuna        String   @db.VarChar(100)
+  toneladas     Int
+  tipos_cultura String   @db.VarChar(500)
+  hectares      Int
+  viveiros      String   @db.VarChar(110)
+  postoId       Int?
+  postos        postos?  @relation(fields: [postoId], references: [id])
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+}
+
+model stories {
+  id          Int      @id @default(autoincrement())
+  description String   @db.Text
+  postoId     Int?
+  postos      postos?  @relation(fields: [postoId], references: [id])
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+}
+
+model upload {
+  id         Int             @id @default(autoincrement())
+  titulo     String?         @db.Text
+  ficheiro   String?         @db.VarChar(110)
+  section    upload_section? @default(PublicacoesEspeciais)
+  postoId    Int?
+  postos     postos?         @relation(fields: [postoId], references: [id])
+  created_at DateTime        @default(now())
+  updated_at DateTime        @default(now()) @updatedAt
+}
+
+model users {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  first_name String   @default("") @db.VarChar(255)
+  last_name  String   @default("") @db.VarChar(255)
+  email      String   @default("") @db.VarChar(255)
+  password   String   @default("") @db.VarChar(255)
+  level      Int
+  forget     String?  @db.VarChar(255)
+  phone      String?  @db.VarChar(111)
+  photo      String?  @db.VarChar(255)
+  postoId    Int?
+  postos     postos?  @relation(fields: [postoId], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+enum paginas_status {
+  rascunho
+  publicado
+}
+
+enum abouts_section {
+  SobreNos
+  Atribuicoes
+  Historia
+  Politica
+}
+
+enum configuracoes_section {
+  Facebook
+  Youtube
+  UrlMapa
+  Telefone
+  Email
+  Localizacao
+  Link
+  Video
+  Twitter
+  Instagram
+  Linkedin
+}
+
+enum upload_section {
+  PublicacoesEspeciais
+  LegislacaoVigente
+}
+
+enum galery_section {
+  ImagensAngola
+  GaleriaEmbaixadores
+  GaleriaDeActividades
+  Imagens
+  Videos
+}
+
+enum postos_type {
+  Consulado
+  Embaixada
+  PostoConsular
+  Ministerio
+}
+
+enum profiles_section {
+  PerfilTitular
+  TitularesMinisterios
+}
+
+enum entity_and_projects_section {
+  Entidades
+  Projectos
+  EducacaoAmbiental
+  Eventos
+  Organizacoes
+  Porcentual
+}

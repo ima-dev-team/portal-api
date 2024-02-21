@@ -1,0 +1,17 @@
+@media (max-width: 767px) {
+    .footer-logo{
+        margin: auto !important;
+        width: 70% !important;
+        padding-bottom: 40px;
+    }
+    .footer-menu{
+        text-align:center !important;
+    }
+    .footer-portal{
+        text-align:center !important;
+        margin-top:-20px;
+    }
+    footer ul.links li a:hover:after {
+    opacity: 0;
+}
+}
