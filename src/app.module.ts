@@ -9,6 +9,7 @@ import { SlidesModule } from './slides/slides.module';
 import { NoticiasModule } from './noticias/noticias.module';
 import { ProjectsModule } from './projects/projects.module';
 import { ProfilesModule } from './profiles/profiles.module';
+import { ConfigsModule } from './configs/configs.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProfilesModule } from './profiles/profiles.module';
     NoticiasModule,
     ProjectsModule,
     ProfilesModule,
+    ConfigsModule,
   ],
 })
 export class AppModule {}
