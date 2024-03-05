@@ -11,18 +11,16 @@ model abouts {
   id          Int             @id @default(autoincrement())
   description String          @db.LongText
   section     abouts_section?
-  postoId     Int?
-  postos      postos?         @relation(fields: [postoId], references: [id])
-  created_at  DateTime        @default(now())
-  updated_at  DateTime        @default(now()) @updatedAt
+  posto       Int?
+  created_at  DateTime?       @default(now()) @db.Timestamp(0)
+  updated_at  DateTime?       @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model activity_log {
   id          Int      @id @default(autoincrement())
   user_id     Int      @db.UnsignedInt
   description String   @db.Text
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now()) @updatedAt
+  created_at  DateTime @default(now()) @db.Timestamp(0)
 
   @@index([user_id], map: "activity_log_FK_1")
 }
@@ -30,10 +28,9 @@ model activity_log {
 model assignments {
   id          Int      @id @default(autoincrement())
   description String   @db.Text
-  postoId     Int?
-  postos      postos?  @relation(fields: [postoId], references: [id])
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now()) @updatedAt
+  posto       Int
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  updated_at  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @updatedAt @db.Timestamp(0)
 }
 
 model configuracoes {
@@ -41,10 +38,13 @@ model configuracoes {
   title      String?               @db.VarChar(110)
   type       String?               @db.LongText
   section    configuracoes_section
+  posto      Int
+  created_at DateTime?             @default(now()) @db.Timestamp(0)
+  updated_at DateTime?             @default(now()) @updatedAt @db.Timestamp(0)
   postoId    Int?
   postos     postos?               @relation(fields: [postoId], references: [id])
-  created_at DateTime              @default(now())
-  updated_at DateTime              @default(now()) @updatedAt
+
+  @@index([postoId], map: "configuracoes_postoId_fkey")
 }
 
 model contactos {
@@ -52,19 +52,17 @@ model contactos {
   name       String   @db.VarChar(100)
   email      String   @db.VarChar(100)
   phone      String   @db.VarChar(111)
-  postoId    Int?
-  postos     postos?  @relation(fields: [postoId], references: [id])
+  posto      Int
   messagem   String   @db.LongText
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model entity_and_projects {
   id             Int                         @id @default(autoincrement())
   cover          String?                     @db.VarChar(255)
   title          String?                     @db.VarChar(200)
-  postoId        Int?
-  postos         postos?                     @relation(fields: [postoId], references: [id])
+  posto          String                      @db.VarChar(200)
   description    String?                     @db.Text
   link           String?                     @db.VarChar(200)
   links          String?                     @db.VarChar(110)
@@ -77,93 +75,91 @@ model entity_and_projects {
   condicaoAcesso String?                     @db.VarChar(110)
   promotor       String?                     @db.VarChar(110)
   organizador    String?                     @db.VarChar(110)
-  created_at     DateTime                    @default(now())
-  updated_at     DateTime                    @default(now()) @updatedAt
+  created_at     DateTime?                   @default(now()) @db.Timestamp(0)
+  updated_at     DateTime?                   @default(now()) @updatedAt @db.Timestamp(0)
+  postoId        Int?
+
+  @@index([postoId], map: "entity_and_projects_postoId_fkey")
 }
 
 model galery {
   id         Int            @id @default(autoincrement())
   title      String         @db.LongText
   cover      String         @db.VarChar(110)
-  postoId    Int?
-  postos     postos?        @relation(fields: [postoId], references: [id])
+  posto      Int
   link       String?        @db.VarChar(110)
   section    galery_section
-  created_at DateTime       @default(now())
-  updated_at DateTime       @default(now()) @updatedAt
+  created_at DateTime?      @default(now()) @db.Timestamp(0)
+  updated_at DateTime?      @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model galery_item {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   id_album   Int?
-  cover      String?  @db.VarChar(210)
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  cover      String?   @db.VarChar(210)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model municipio {
-  id           Int        @id @default(autoincrement())
-  provincia_id Int?
-  provincia    provincia? @relation(fields: [provincia_id], references: [id])
-  name         String     @db.VarChar(100)
-  created_at   DateTime   @default(now())
-  updated_at   DateTime   @default(now()) @updatedAt
+  id           Int      @id @default(autoincrement())
+  provincia_id Int
+  name         String   @db.VarChar(100)
+  created_at   DateTime @default(now()) @db.Timestamp(0)
+  updated_at   DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model postos {
-  id                  Int                   @id @default(autoincrement())
-  title               String                @db.VarChar(255)
-  sigla               String                @db.VarChar(255)
-  domain              String?               @db.VarChar(255)
-  cover               String?               @db.VarChar(500)
-  type                postos_type?
-  created_at          DateTime              @default(now())
-  updated_at          DateTime              @default(now()) @updatedAt
-  paginas             paginas[]
-  privacy_and_policy  privacy_and_policy[]
-  report_access       report_access[]
-  report_online       report_online[]
-  slides              slides[]
-  stats_farming       stats_farming[]
-  stories             stories[]
-  upload              upload[]
-  users               users[]
-  abouts              abouts[]
-  assignments         assignments[]
-  configuracoes       configuracoes[]
-  contactos           contactos[]
-  entity_and_projects entity_and_projects[]
-  galery              galery[]
-  profiles            profiles[]
-  menu               menu[]
-  posts               posts[]
+  id            Int             @id @default(autoincrement())
+  title         String          @db.VarChar(255)
+  sigla         String          @db.VarChar(255)
+  domain        String?         @db.VarChar(255)
+  cover         String?         @db.VarChar(500)
+  type          postos_type?
+  embaixada     Int?
+  created_at    DateTime?       @default(now()) @db.DateTime(0)
+  updated_at    DateTime?       @default(now()) @updatedAt @db.DateTime(0)
+  buaps         buaps[]
+  configuracoes configuracoes[]
+  menu          menu[]
+  paginas       paginas[]
+  posts         posts[]
+  profiles      profiles[]
+  slides        slides[]
 }
 
 model paginas {
   id         Int            @id @default(autoincrement())
   name       String
-  slug       String?
-  content    String?         @db.Text
+  content    String?        @default(" ") @db.Text
   css        String?        @db.Text
   status     paginas_status @default(rascunho)
   postoId    Int?
-  postos     postos?        @relation(fields: [postoId], references: [id])
   created_at DateTime       @default(now())
   updated_at DateTime       @default(now()) @updatedAt
+  slug       String?
+  page_type  String?        @db.VarChar(255)
+  postos     postos?        @relation(fields: [postoId], references: [id])
+
+  @@index([postoId], map: "paginas_postoId_fkey")
 }
 
 model menu {
   id         Int      @id @default(autoincrement())
-  title      String
-  url        String? // Opcional, nem todos os itens de menu podem ser links
-  parentId   Int? // Opcional, usado para estabelecer hierarquia (null para itens de nível superior)
   postoId    Int?
-  order      Int? // Usado para controlar a ordem de exibição dos itens de menu
-  postos     postos?  @relation(fields: [postoId], references: [id])
-  parent     menu?    @relation("MenuItemToMenuItem", fields: [parentId], references: [id])
-  children   menu[]   @relation("MenuItemToMenuItem")
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
+  order      Int?
+  url        String?
+  page_id    Int?
+  parentId   Int?
+  title      String
+  parent     menu?    @relation("MenuItemToMenuItem", fields: [parentId], references: [id], map: "Menu_parentId_fkey")
+  children   menu[]   @relation("MenuItemToMenuItem")
+  postos     postos?  @relation(fields: [postoId], references: [id], map: "Menu_postoId_fkey")
+
+  @@index([parentId], map: "Menu_parentId_fkey")
+  @@index([postoId], map: "Menu_postoId_fkey")
 }
 
 model posts {
@@ -175,24 +171,26 @@ model posts {
   cover      String?   @db.Text
   video      String?   @db.Text
   views      Int?      @default(0)
-  postoId    Int?
-  postos     postos?   @relation(fields: [postoId], references: [id])
+  posto      Int
   fonte      String?   @db.VarChar(110)
   status     String    @default("draft") @db.VarChar(20)
   destaque   Int?
   post_at    DateTime? @default(now()) @db.Timestamp(0)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @default(now()) @updatedAt
-  deleted_at DateTime? @default(now()) @db.Timestamp(0)
+  created_at DateTime  @default(now()) @db.Timestamp(0)
+  updated_at DateTime  @default(now()) @updatedAt @db.Timestamp(0)
+  deleted_at DateTime? @db.Timestamp(0)
+  postoId    Int?
+  postos     postos?   @relation(fields: [postoId], references: [id])
+
+  @@index([postoId], map: "posts_postoId_fkey")
 }
 
 model privacy_and_policy {
   id          Int      @id @default(autoincrement())
   description String   @db.Text
-  postoId     Int?
-  postos      postos?  @relation(fields: [postoId], references: [id])
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now()) @updatedAt
+  posto       Int
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  updated_at  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @updatedAt @db.Timestamp(0)
 }
 
 model profiles {
@@ -201,37 +199,39 @@ model profiles {
   description   String           @db.Text
   data_nomeacao String?          @db.VarChar(110)
   photo         String           @db.VarChar(110)
-  postoId       Int?
-  postos        postos?          @relation(fields: [postoId], references: [id])
+  posto         Int
   section       profiles_section
   cargo         String?          @db.VarChar(110)
-  created_at    DateTime         @default(now())
-  updated_at    DateTime         @default(now()) @updatedAt
+  created_at    DateTime?        @default(now()) @db.Timestamp(0)
+  updated_at    DateTime?        @default(now()) @updatedAt @db.Timestamp(0)
+  postoId       Int?
+  postos        postos?          @relation(fields: [postoId], references: [id])
+
+  @@index([postoId], map: "profiles_postoId_fkey")
 }
 
 model profiles_descriptions {
   id         Int      @id @default(autoincrement())
   name       String   @db.VarChar(200)
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model provincia {
-  id         Int         @id @default(autoincrement())
-  name       String      @db.VarChar(100)
-  created_at DateTime    @default(now())
-  updated_at DateTime    @default(now()) @updatedAt
-  municipio  municipio[]
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(100)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model real_access {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   user_id     Int?
-  access_time DateTime @default(now()) @db.Timestamp(0)
-  user_agent  String?  @db.VarChar(255)
-  ip_address  String?  @db.VarChar(50)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now()) @updatedAt
+  access_time DateTime  @default(now()) @db.Timestamp(0)
+  user_agent  String?   @db.VarChar(255)
+  ip_address  String?   @db.VarChar(50)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  updated_at  DateTime? @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model report_access {
@@ -239,10 +239,9 @@ model report_access {
   users      Int      @default(1)
   views      Int      @default(1)
   pages      Int      @default(1)
-  postoId    Int?
-  postos     postos?  @relation(fields: [postoId], references: [id])
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  posto      Int?
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model report_online {
@@ -252,46 +251,46 @@ model report_online {
   url        String   @default("") @db.VarChar(255)
   agent      String   @default("") @db.VarChar(255)
   pages      Int      @default(1)
-  postoId    Int?
-  postos     postos?  @relation(fields: [postoId], references: [id])
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  posto      Int?
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model slides {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.Text
-  cover       String   @db.Text
-  link        String?  @db.Text
+  id          Int       @id @default(autoincrement())
+  title       String    @db.Text
+  cover       String    @db.Text
+  link        String?   @db.Text
+  posto       Int
+  description String?   @db.Text
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  updated_at  DateTime? @default(now()) @updatedAt @db.Timestamp(0)
   postoId     Int?
-  postos      postos?  @relation(fields: [postoId], references: [id])
-  description String?  @db.Text
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now()) @updatedAt
+  postos      postos?   @relation(fields: [postoId], references: [id])
+
+  @@index([postoId], map: "slides_postoId_fkey")
 }
 
 model stats_farming {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   provincia     Int
   municipio     Int
-  comuna        String   @db.VarChar(100)
+  comuna        String    @db.VarChar(100)
   toneladas     Int
-  tipos_cultura String   @db.VarChar(500)
+  tipos_cultura String    @db.VarChar(500)
   hectares      Int
-  viveiros      String   @db.VarChar(110)
-  postoId       Int?
-  postos        postos?  @relation(fields: [postoId], references: [id])
-  created_at    DateTime @default(now())
-  updated_at    DateTime @default(now()) @updatedAt
+  viveiros      String    @db.VarChar(110)
+  posto         Int
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model stories {
   id          Int      @id @default(autoincrement())
   description String   @db.Text
-  postoId     Int?
-  postos      postos?  @relation(fields: [postoId], references: [id])
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now()) @updatedAt
+  posto       Int
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  updated_at  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @updatedAt @db.Timestamp(0)
 }
 
 model upload {
@@ -299,26 +298,60 @@ model upload {
   titulo     String?         @db.Text
   ficheiro   String?         @db.VarChar(110)
   section    upload_section? @default(PublicacoesEspeciais)
-  postoId    Int?
-  postos     postos?         @relation(fields: [postoId], references: [id])
-  created_at DateTime        @default(now())
-  updated_at DateTime        @default(now()) @updatedAt
+  posto      Int?
+  created_at DateTime        @default(now()) @db.Timestamp(0)
+  updated_at DateTime        @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model users {
-  id         Int      @id @default(autoincrement()) @db.UnsignedInt
-  first_name String   @default("") @db.VarChar(255)
-  last_name  String   @default("") @db.VarChar(255)
-  email      String   @default("") @db.VarChar(255)
-  password   String   @default("") @db.VarChar(255)
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  first_name String    @default("") @db.VarChar(255)
+  last_name  String    @default("") @db.VarChar(255)
+  email      String    @default("") @db.VarChar(255)
+  password   String    @default("") @db.VarChar(255)
   level      Int
-  forget     String?  @db.VarChar(255)
-  phone      String?  @db.VarChar(111)
-  photo      String?  @db.VarChar(255)
-  postoId    Int?
-  postos     postos?  @relation(fields: [postoId], references: [id])
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  forget     String?   @db.VarChar(255)
+  phone      String?   @db.VarChar(111)
+  photo      String?   @db.VarChar(255)
+  posto      Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @updatedAt @db.Timestamp(0)
+}
+
+model buaps {
+  id           Int      @id @default(autoincrement())
+  posto_id     Int
+  provincia_id Int
+  municipio_id Int
+  phone_number String   @db.VarChar(255)
+  email        String   @db.VarChar(255)
+  atendimento  String   @db.VarChar(255)
+  map_link     String   @db.Text
+  created_at   DateTime @default(now()) @db.Timestamp(0)
+  updated_at   DateTime @default(now()) @db.Timestamp(0)
+  postoId      Int?
+  postos       postos?  @relation(fields: [postoId], references: [id])
+
+  @@index([postoId], map: "buaps_postoId_fkey")
+}
+
+model item_menu {
+  id         Int       @id @default(autoincrement())
+  menus      String    @db.VarChar(100)
+  posto      Int
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model item_submenu {
+  id         Int       @id @default(autoincrement())
+  id_menu    String    @db.VarChar(100)
+  title_menu String    @db.VarChar(110)
+  uri        String    @db.VarChar(100)
+  link       String?   @db.VarChar(100)
+  content    String    @db.Text
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
 }
 
 enum paginas_status {
@@ -331,20 +364,6 @@ enum abouts_section {
   Atribuicoes
   Historia
   Politica
-}
-
-enum configuracoes_section {
-  Facebook
-  Youtube
-  UrlMapa
-  Telefone
-  Email
-  Localizacao
-  Link
-  Video
-  Twitter
-  Instagram
-  Linkedin
 }
 
 enum upload_section {
@@ -360,13 +379,6 @@ enum galery_section {
   Videos
 }
 
-enum postos_type {
-  Consulado
-  Embaixada
-  PostoConsular
-  Ministerio
-}
-
 enum profiles_section {
   PerfilTitular
   TitularesMinisterios
@@ -379,4 +391,25 @@ enum entity_and_projects_section {
   Eventos
   Organizacoes
   Porcentual
+}
+
+enum configuracoes_section {
+  Facebook
+  Youtube
+  UrlMapa
+  Telefone
+  Email
+  Localizacao
+  Link
+  Video
+  Twitter
+  Instagram
+  Linkedin
+  WhatsApp
+}
+
+enum postos_type {
+  Consulado
+  Embaixada
+  PostoConsular
 }

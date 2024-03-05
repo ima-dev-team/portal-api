@@ -10,6 +10,7 @@ import { NoticiasModule } from './noticias/noticias.module';
 import { ProjectsModule } from './projects/projects.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { ConfigsModule } from './configs/configs.module';
+import { BuapsModule } from './buap/buaps.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ConfigsModule } from './configs/configs.module';
     ProjectsModule,
     ProfilesModule,
     ConfigsModule,
+    BuapsModule,
   ],
 })
 export class AppModule {}

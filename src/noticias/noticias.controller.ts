@@ -4,6 +4,7 @@ import { NoticiasService } from './noticias.service';
 @Controller('noticias')
 export class NoticiasController {
   constructor(private readonly noticiasService: NoticiasService) {}
+
   /*   @Post()
   create(@Body() createNoticiaDto: CreateNoticiaDto) {
     return this.noticiasService.create(createNoticiaDto);
