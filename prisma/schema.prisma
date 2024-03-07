@@ -62,7 +62,7 @@ model entity_and_projects {
   id             Int                         @id @default(autoincrement())
   cover          String?                     @db.VarChar(255)
   title          String?                     @db.VarChar(200)
-  posto          String                      @db.VarChar(200)
+  posto          Int?
   description    String?                     @db.Text
   link           String?                     @db.VarChar(200)
   links          String?                     @db.VarChar(110)
@@ -107,6 +107,7 @@ model municipio {
   name         String   @db.VarChar(100)
   created_at   DateTime @default(now()) @db.Timestamp(0)
   updated_at   DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  buaps        buaps[]
 }
 
 model postos {
@@ -126,6 +127,8 @@ model postos {
   posts         posts[]
   profiles      profiles[]
   slides        slides[]
+
+  @@index([id], map: "id_index")
 }
 
 model paginas {
@@ -171,7 +174,7 @@ model posts {
   cover      String?   @db.Text
   video      String?   @db.Text
   views      Int?      @default(0)
-  posto      Int
+  posto      Int?
   fonte      String?   @db.VarChar(110)
   status     String    @default("draft") @db.VarChar(20)
   destaque   Int?
@@ -179,10 +182,9 @@ model posts {
   created_at DateTime  @default(now()) @db.Timestamp(0)
   updated_at DateTime  @default(now()) @updatedAt @db.Timestamp(0)
   deleted_at DateTime? @db.Timestamp(0)
-  postoId    Int?
-  postos     postos?   @relation(fields: [postoId], references: [id])
+  postos     postos?   @relation(fields: [posto], references: [id], onUpdate: SetNull, map: "posto_index")
 
-  @@index([postoId], map: "posts_postoId_fkey")
+  @@index([posto], map: "posto_index")
 }
 
 model privacy_and_policy {
@@ -222,6 +224,9 @@ model provincia {
   name       String   @db.VarChar(100)
   created_at DateTime @default(now()) @db.Timestamp(0)
   updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  buaps      buaps[]
+
+  @@index([id], map: "id_index")
 }
 
 model real_access {
@@ -266,7 +271,7 @@ model slides {
   created_at  DateTime? @default(now()) @db.Timestamp(0)
   updated_at  DateTime? @default(now()) @updatedAt @db.Timestamp(0)
   postoId     Int?
-  postos      postos?   @relation(fields: [postoId], references: [id])
+  postos      postos?   @relation(fields: [postoId], references: [id], onDelete: Restrict, onUpdate: Restrict)
 
   @@index([postoId], map: "slides_postoId_fkey")
 }
@@ -319,20 +324,23 @@ model users {
 }
 
 model buaps {
-  id           Int      @id @default(autoincrement())
-  posto_id     Int
-  provincia_id Int
-  municipio_id Int
-  phone_number String   @db.VarChar(255)
-  email        String   @db.VarChar(255)
-  atendimento  String   @db.VarChar(255)
-  map_link     String   @db.Text
-  created_at   DateTime @default(now()) @db.Timestamp(0)
-  updated_at   DateTime @default(now()) @db.Timestamp(0)
-  postoId      Int?
-  postos       postos?  @relation(fields: [postoId], references: [id])
+  id           Int        @id @default(autoincrement())
+  posto_id     Int?
+  provincia_id Int?
+  municipio_id Int?
+  phone_number String     @db.VarChar(255)
+  email        String     @db.VarChar(255)
+  atendimento  String     @db.VarChar(255)
+  map_link     String     @db.Text
+  created_at   DateTime   @default(now()) @db.Timestamp(0)
+  updated_at   DateTime   @default(now()) @db.Timestamp(0)
+  municipio    municipio? @relation(fields: [municipio_id], references: [id], onUpdate: Restrict)
+  provincia    provincia? @relation(fields: [provincia_id], references: [id], onUpdate: Restrict, map: "buaps_provincia_id_index")
+  postos       postos?    @relation(fields: [posto_id], references: [id], onUpdate: Restrict, map: "posto_id_index")
 
-  @@index([postoId], map: "buaps_postoId_fkey")
+  @@index([municipio_id], map: "municipio_id_index")
+  @@index([posto_id], map: "posto_id_index")
+  @@index([provincia_id], map: "provincia_id_index")
 }
 
 model item_menu {
@@ -352,6 +360,19 @@ model item_submenu {
   content    String    @db.Text
   created_at DateTime? @default(now()) @db.Timestamp(0)
   updated_at DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model mail_queue {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  subject         String    @default("") @db.VarChar(255)
+  body            String    @db.Text
+  from_email      String    @default("") @db.VarChar(255)
+  from_name       String    @default("") @db.VarChar(255)
+  recipient_email String    @default("") @db.VarChar(255)
+  recipient_name  String    @default("") @db.VarChar(255)
+  sent_at         DateTime? @db.Timestamp(0)
+  created_at      DateTime  @default(now()) @db.Timestamp(0)
+  updated_at      DateTime  @default(now()) @db.Timestamp(0)
 }
 
 enum paginas_status {

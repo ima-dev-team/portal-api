@@ -11,7 +11,7 @@ export class NoticiasService {
   async findAll(postoId: number) {
     const noticia = await this.prisma.posts.findMany({
       where: {
-        postoId: postoId,
+        posto: postoId,
       },
       orderBy: {
         post_at: 'desc',

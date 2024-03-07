@@ -13,7 +13,11 @@ export class BuapService {
   async findAll(postoId: number) {
     const buaps = await this.prisma.buaps.findMany({
       where: {
-        postoId: postoId,
+        posto_id: postoId,
+      },
+      include: {
+        municipio: {},
+        provincia: {},
       },
       skip: 0,
       take: 6,
