@@ -12,7 +12,7 @@ async function bootstrap() {
   app.setViewEngine('hbs');
 
   app.enableCors({
-    origin: ['*'],
+    origin: ['https://mat.gov.ao', '*'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
   const config = new DocumentBuilder()
