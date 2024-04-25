@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../../Documentos/editor"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "editor"
+	}
+}

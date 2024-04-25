@@ -11,7 +11,10 @@ export class ProjectsService {
   async findAll(postoId: number) {
     const projectos = await this.prisma.entity_and_projects.findMany({
       where: {
-        postoId: postoId,
+        AND: {
+          section: 'Projectos',
+          posto: postoId,
+        },
       },
       orderBy: {
         created_at: 'desc',

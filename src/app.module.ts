@@ -11,6 +11,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { ConfigsModule } from './configs/configs.module';
 import { BuapsModule } from './buap/buaps.module';
+import { EntitiesModule } from './entities/entities.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { BuapsModule } from './buap/buaps.module';
     ProfilesModule,
     ConfigsModule,
     BuapsModule,
+    EntitiesModule,
   ],
 })
 export class AppModule {}

@@ -77,9 +77,8 @@ model entity_and_projects {
   organizador    String?                     @db.VarChar(110)
   created_at     DateTime?                   @default(now()) @db.Timestamp(0)
   updated_at     DateTime?                   @default(now()) @updatedAt @db.Timestamp(0)
-  postoId        Int?
 
-  @@index([postoId], map: "entity_and_projects_postoId_fkey")
+  @@index([posto], map: "posto_index")
 }
 
 model galery {
@@ -102,12 +101,20 @@ model galery_item {
 }
 
 model municipio {
-  id           Int      @id @default(autoincrement())
-  provincia_id Int
-  name         String   @db.VarChar(100)
-  created_at   DateTime @default(now()) @db.Timestamp(0)
-  updated_at   DateTime @default(now()) @updatedAt @db.Timestamp(0)
-  buaps        buaps[]
+  id            Int       @id @default(autoincrement())
+  provincia_id  Int
+  name          String    @db.VarChar(100)
+  is_capital    String    @default("N") @db.Char(1)
+  administrador Int?
+  densidade     String    @db.VarChar(255)
+  data_fundacao DateTime  @db.Date
+  created_at    DateTime  @default(now()) @db.Timestamp(0)
+  updated_at    DateTime  @default(now()) @updatedAt @db.Timestamp(0)
+  buaps         buaps[]
+  profiles      profiles? @relation(fields: [administrador], references: [id], onUpdate: SetNull, map: "fk_profiles_municipio")
+  regioes       regioes[]
+
+  @@index([administrador], map: "fk_profiles_municipio")
 }
 
 model postos {
@@ -124,6 +131,7 @@ model postos {
   configuracoes configuracoes[]
   menu          menu[]
   paginas       paginas[]
+  parceiros     parceiros[]
   posts         posts[]
   profiles      profiles[]
   slides        slides[]
@@ -134,7 +142,7 @@ model postos {
 model paginas {
   id         Int            @id @default(autoincrement())
   name       String
-  content    String?        @default(" ") @db.Text
+  content    String?        @default("'\\\\'\\\\\\\\\\\\' \\\\\\\\\\\\'\\\\''") @db.LongText
   css        String?        @db.Text
   status     paginas_status @default(rascunho)
   postoId    Int?
@@ -148,41 +156,45 @@ model paginas {
 }
 
 model menu {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   postoId    Int?
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now()) @updatedAt
   order      Int?
   url        String?
   page_id    Int?
   parentId   Int?
   title      String
-  parent     menu?    @relation("MenuItemToMenuItem", fields: [parentId], references: [id], map: "Menu_parentId_fkey")
-  children   menu[]   @relation("MenuItemToMenuItem")
-  postos     postos?  @relation(fields: [postoId], references: [id], map: "Menu_postoId_fkey")
+  parent     menu?     @relation("MenuItemToMenuItem", fields: [parentId], references: [id], map: "Menu_parentId_fkey")
+  children   menu[]    @relation("MenuItemToMenuItem")
+  postos     postos?   @relation(fields: [postoId], references: [id], map: "Menu_postoId_fkey")
 
   @@index([parentId], map: "Menu_parentId_fkey")
   @@index([postoId], map: "Menu_postoId_fkey")
 }
 
 model posts {
-  id         Int       @id @default(autoincrement()) @db.UnsignedInt
-  author     Int?      @db.UnsignedInt
-  title      String?   @db.Text
-  uri        String?   @db.Text
-  content    String?   @db.Text
-  cover      String?   @db.Text
-  video      String?   @db.Text
-  views      Int?      @default(0)
-  posto      Int?
-  fonte      String?   @db.VarChar(110)
-  status     String    @default("draft") @db.VarChar(20)
-  destaque   Int?
-  post_at    DateTime? @default(now()) @db.Timestamp(0)
-  created_at DateTime  @default(now()) @db.Timestamp(0)
-  updated_at DateTime  @default(now()) @updatedAt @db.Timestamp(0)
-  deleted_at DateTime? @db.Timestamp(0)
-  postos     postos?   @relation(fields: [posto], references: [id], onUpdate: SetNull, map: "posto_index")
+  id             Int            @id @default(autoincrement()) @db.UnsignedInt
+  author         Int?           @db.UnsignedInt
+  title          String?        @db.Text
+  uri            String?        @db.Text
+  content        String?        @db.Text
+  cover          String?        @db.Text
+  video          String?        @db.Text
+  views          Int?           @default(0)
+  posto          Int?
+  section        posts_section?
+  fonte          String?        @db.VarChar(110)
+  status         String         @default("draft") @db.VarChar(20)
+  destaque       Int?
+  efemeride      Boolean        @default(false)
+  data_efemeride DateTime?      @db.Date
+  campanha       posts_campanha @default(N)
+  post_at        DateTime?      @default(now()) @db.Timestamp(0)
+  created_at     DateTime       @default(now()) @db.Timestamp(0)
+  updated_at     DateTime       @default(now()) @updatedAt @db.Timestamp(0)
+  deleted_at     DateTime?      @db.Timestamp(0)
+  postos         postos?        @relation(fields: [posto], references: [id], onUpdate: SetNull, map: "posto_index")
 
   @@index([posto], map: "posto_index")
 }
@@ -196,20 +208,26 @@ model privacy_and_policy {
 }
 
 model profiles {
-  id            Int              @id @default(autoincrement())
-  name          String           @db.VarChar(100)
-  description   String           @db.Text
-  data_nomeacao String?          @db.VarChar(110)
-  photo         String           @db.VarChar(110)
-  posto         Int
-  section       profiles_section
-  cargo         String?          @db.VarChar(110)
-  created_at    DateTime?        @default(now()) @db.Timestamp(0)
-  updated_at    DateTime?        @default(now()) @updatedAt @db.Timestamp(0)
-  postoId       Int?
-  postos        postos?          @relation(fields: [postoId], references: [id])
+  id                        Int              @id @default(autoincrement())
+  name                      String           @db.VarChar(100)
+  description               String           @db.Text
+  data_nomeacao             String?          @db.VarChar(110)
+  photo                     String           @db.VarChar(110)
+  posto                     Int
+  section                   profiles_section
+  cargo                     String?          @db.VarChar(110)
+  cargo_id                  Int?
+  provincia_vice_governador Int?
+  created_at                DateTime?        @default(now()) @db.Timestamp(0)
+  updated_at                DateTime?        @default(now()) @updatedAt @db.Timestamp(0)
+  postoId                   Int?
+  municipio                 municipio[]
+  cargos                    cargos?          @relation(fields: [cargo_id], references: [id], map: "profiles_cargoId_fkey")
+  postos                    postos?          @relation(fields: [postoId], references: [id])
+  provincia                 provincia[]
 
   @@index([postoId], map: "profiles_postoId_fkey")
+  @@index([cargo_id], map: "profiles_cargoId_fkey")
 }
 
 model profiles_descriptions {
@@ -220,13 +238,21 @@ model profiles_descriptions {
 }
 
 model provincia {
-  id         Int      @id @default(autoincrement())
-  name       String   @db.VarChar(100)
-  created_at DateTime @default(now()) @db.Timestamp(0)
-  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
-  buaps      buaps[]
+  id            Int       @id @default(autoincrement())
+  name          String    @db.VarChar(100)
+  lingua        String    @db.VarChar(255)
+  etnia         String    @db.VarChar(255)
+  extensao      String    @db.VarChar(255)
+  governador    Int?
+  image_mapa    String    @db.LongText
+  densidade     String    @db.VarChar(255)
+  data_fundacao DateTime  @db.Date
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @updatedAt @db.Timestamp(0)
+  buaps         buaps[]
+  profiles      profiles? @relation(fields: [governador], references: [id], map: "fk_profiles_provincia")
 
-  @@index([id], map: "id_index")
+  @@index([governador], map: "fk_profiles_provincia")
 }
 
 model real_access {
@@ -302,7 +328,7 @@ model upload {
   id         Int             @id @default(autoincrement())
   titulo     String?         @db.Text
   ficheiro   String?         @db.VarChar(110)
-  section    upload_section? @default(PublicacoesEspeciais)
+  section    upload_section? @default(Relat_rios_e_Estat_stica)
   posto      Int?
   created_at DateTime        @default(now()) @db.Timestamp(0)
   updated_at DateTime        @default(now()) @updatedAt @db.Timestamp(0)
@@ -375,21 +401,61 @@ model mail_queue {
   updated_at      DateTime  @default(now()) @db.Timestamp(0)
 }
 
+model cargos {
+  id         Int        @id @default(autoincrement())
+  name       String     @db.VarChar(255)
+  created_at DateTime   @default(now()) @db.Timestamp(0)
+  updated_at DateTime   @default(now()) @db.Timestamp(0)
+  profiles   profiles[]
+}
+
+model parceiros {
+  id         Int      @id @default(autoincrement())
+  image      String   @db.Text
+  link       String   @db.Text
+  posto      Int
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+  postos     postos   @relation(fields: [posto], references: [id], onUpdate: Restrict, map: "fk_posto_parceiros")
+
+  @@index([posto], map: "fk_posto_parceiros")
+}
+
+model regioes {
+  id           Int          @id @default(autoincrement())
+  name         String       @db.VarChar(255)
+  municipio_id Int
+  tipo         regioes_tipo
+  created_at   DateTime     @default(now()) @db.Timestamp(0)
+  updated_at   DateTime     @default(now()) @db.Timestamp(0)
+  municipio    municipio    @relation(fields: [municipio_id], references: [id], onDelete: Cascade, map: "fk_regioes_municipio")
+
+  @@index([municipio_id], map: "fk_regioes_municipio")
+}
+
+model yearly_statistics {
+  id         Int      @id @default(autoincrement())
+  post_id    Int
+  stats_year Int?
+  january    Float?
+  february   Float?
+  march      Float?
+  april      Float?
+  may        Float?
+  june       Float?
+  july       Float?
+  august     Float?
+  september  Float?
+  october    Float?
+  november   Float?
+  december   Float?
+  created_at DateTime @default(now()) @db.DateTime(0)
+  updated_at DateTime @default(now()) @db.DateTime(0)
+}
+
 enum paginas_status {
   rascunho
   publicado
-}
-
-enum abouts_section {
-  SobreNos
-  Atribuicoes
-  Historia
-  Politica
-}
-
-enum upload_section {
-  PublicacoesEspeciais
-  LegislacaoVigente
 }
 
 enum galery_section {
@@ -398,11 +464,6 @@ enum galery_section {
   GaleriaDeActividades
   Imagens
   Videos
-}
-
-enum profiles_section {
-  PerfilTitular
-  TitularesMinisterios
 }
 
 enum entity_and_projects_section {
@@ -429,8 +490,59 @@ enum configuracoes_section {
   WhatsApp
 }
 
+enum regioes_tipo {
+  Distrito
+  Comuna
+}
+
+enum posts_campanha {
+  N
+  S
+}
+
+enum abouts_section {
+  SobreNos
+  Atribuicoes
+  Historia
+  Politica
+  Estrutura
+  Missao
+  MensagemEmbaixador
+  Demografia
+  LocalizacaoGeografica
+  DptMinisteriais
+  AssembleiaNacional
+  Governo
+  Embaixadas
+  Consulados
+}
+
+enum upload_section {
+  Legisla__o               @map("Legislação")
+  Comunicados
+  Formul_rios              @map("Formulários")
+  Acordos_de_Coopera__o    @map("Acordos de Cooperação")
+  Relat_rios_e_Estat_stica @map("Relatórios e Estatística")
+  Recortes
+}
+
 enum postos_type {
-  Consulado
   Embaixada
+  Consulado
   PostoConsular
+  Minist_rio    @map("Ministério")
+}
+
+enum profiles_section {
+  PerfilTitular
+  TitularesMinisterios
+  Presidente
+  CorpoDiplomatico
+  Mirex
+}
+
+enum posts_section {
+  Noticias
+  Turismo
+  Eventos
 }
