@@ -127,8 +127,10 @@ model postos {
   embaixada     Int?
   created_at    DateTime?       @default(now()) @db.DateTime(0)
   updated_at    DateTime?       @default(now()) @updatedAt @db.DateTime(0)
+  agenda        agenda[]
   buaps         buaps[]
   configuracoes configuracoes[]
+  faq           faq[]
   menu          menu[]
   paginas       paginas[]
   parceiros     parceiros[]
@@ -451,6 +453,28 @@ model yearly_statistics {
   december   Float?
   created_at DateTime @default(now()) @db.DateTime(0)
   updated_at DateTime @default(now()) @db.DateTime(0)
+}
+
+model faq {
+  id          Int     @id @default(autoincrement())
+  title       String? @db.VarChar(255)
+  description String? @db.Text
+  postoId     Int?
+  postos      postos? @relation(fields: [postoId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "faq_ibfk_1")
+
+  @@index([postoId], map: "postoId")
+}
+
+model agenda {
+  id         Int       @id @default(autoincrement())
+  date       DateTime? @db.Date
+  start_time DateTime? @db.Time(0)
+  end_time   DateTime? @db.Time(0)
+  activity   String?   @db.VarChar(255)
+  postoId    Int?
+  postos     postos?   @relation(fields: [postoId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "agenda_ibfk_1")
+
+  @@index([postoId], map: "postoId")
 }
 
 enum paginas_status {
